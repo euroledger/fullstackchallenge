@@ -447,7 +447,7 @@ export class App extends Component {
                     }}>
                         <div style={{ display: getWelcomeDisplay() }} className="welcomepanel">
                             <div style={{ borderBottom: '1px solid white' }}>
-                                <p>Welcome to DeversiFi Trading App Demo</p>
+                                <p>Welcome to Trading App Demo</p>
                             </div>
                             <div style={{ marginTop: '35px' }}>
                                 <p> Click on 'Connect to Wallet' to connect to your metamask wallet.
