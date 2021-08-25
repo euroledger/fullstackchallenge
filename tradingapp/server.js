@@ -4,6 +4,7 @@ const path = require('path');
 const { createTerminus } = require('@godaddy/terminus');
 const express = require('express');
 const bodyParser = require('body-parser');
+const OPEN_ONLY = true;
 // const balanceRoutes = require('./routes/balances');
 // const NodeCache = require("node-cache");
 // const storage = new NodeCache();
@@ -49,7 +50,7 @@ app.get('/api/getbalances', cors(), async function (req, res) {
 
 app.get('/api/getorders', cors(), async function (req, res) {
     console.log("in getorders...");
-    const orders = storage.getAllOrders();
+    const orders = storage.getAllOrders(OPEN_ONLY);
     res.status(200).send(orders);
 });
 

@@ -44,7 +44,8 @@ const initState = {
     placedOrders: [],
     error: false,
     balances: [],
-    displayRows: [
+    rows: [],
+    displayRows: [ // for testing
         {
             orderId: "0",
             token: "ETH",
@@ -308,25 +309,12 @@ export class App extends Component {
         }
     }
 
-
-    getInitialAcceptedLabel() {
-        return (this.state.acme.credential_accepted ? "Create Policy" : "Awaiting Acceptance...");
-    }
-
-    getAcceptedLabelRevoke(platform) {
-        return (this.state[platform].credential_accepted ? "Cancel Policy" : "Awaiting Acceptance...");
-    }
-
     submitOrderLabel() {
         return "Submit Order";
     }
 
     getAcceptedLabelIssue(platform) {
         return "Deposit"
-    }
-
-    getVerifyDisabled(platform) {
-        return (this.state[platform].has_been_revoked || !(this.state[platform].verification_accepted));
     }
 
 
@@ -356,8 +344,15 @@ export class App extends Component {
         });
     }
 
-    handleChange = (event, newValue) => {
+    handleChange = async (event, newValue) => {
         // tab change -> clear the balance and token fields
+        if (newValue === 2) {
+            console.log("Getting Open Orders...");
+            const orders = await apiRoutes.orders();
+            this.setState({
+                rows: orders.data,
+            });
+        }
         this.setState(prevState => ({
             deposit: {
                 ...prevState.deposit,
@@ -475,7 +470,7 @@ export class App extends Component {
                                     card={this.state}
                                     title={"Open Orders"}
                                     action={"vieworders"}
-                                    rows={this.state.displayRows}>
+                                    rows={this.state.rows}>
                                 </Form>
                             </TabPanel>
                         </div>

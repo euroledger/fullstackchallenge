@@ -26,5 +26,6 @@ You stay signed in unless you click on "Sign Out".
 1. Avoid bringing back collections and processing on client side (eg balances); do this at back end
 2. Needs some unit tests (esp. server side)
 3. Needs more validation (at form level and on back end) and error handling
+4. Not checking auth params server side
 
 

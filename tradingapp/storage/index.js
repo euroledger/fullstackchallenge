@@ -57,8 +57,13 @@ exports.getAllBalances = () => {
     return !balances ? new Array() : balances
 };
 
-const getAllOrders = () => {
+const getAllOrders = (openOnly) => {
     let orders = cache.get("orders");
+    if (openOnly) {
+        orders = orders.filter((elem) => {
+            return elem.status === "OPEN";
+        });
+    }
     return !orders ? new Array() : orders
 }
 

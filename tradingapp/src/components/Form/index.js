@@ -7,9 +7,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-// import Table from '../Table/indexOLD';
-import DataTable from '../Table/DataTable'
-import Spinner from '../Spinner';
+import Table from '../Table';
 import Collapse from '@material-ui/core/Collapse';
 import CloseIcon from '@material-ui/icons/Close';
 import Alert from '@material-ui/lab/Alert';
@@ -60,8 +58,7 @@ const Form = ({ parent, items, loading, card, title, action, rows, collapse_open
     const getTable = () => {
         if (action === "vieworders") {
             return (
-                // <Table rows={rows}></Table>
-                <DataTable></DataTable>
+                <Table rows={rows}></Table>
             );
         }
     }
@@ -157,8 +154,6 @@ const Form = ({ parent, items, loading, card, title, action, rows, collapse_open
                             </div>
                         </Typography>
                     </div>
-
-                    <Spinner active={loading}></Spinner>
                     {getFields()}
                     {getTable()}
                     < div style={{ marginTop: '50px' }}>
