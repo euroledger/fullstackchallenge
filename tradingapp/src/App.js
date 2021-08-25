@@ -148,6 +148,7 @@ export class App extends Component {
     setCollapseClosed() {
         this.setState({
             collapse_open: false,
+            error: false
         });
     }
 
@@ -174,6 +175,31 @@ export class App extends Component {
             balances: balances.data,
             collapse_open: true
         }));
+    }
+
+    resetError = () => {
+        this.setState({
+            collapse_open: true, // displays alert
+            error: true
+        });
+    }
+
+    displayOpenOrders = (orders) => {
+        console.log(orders);
+        if (orders.data && orders.data.length > 0) {
+            orders = orders.data.filter((elem) => {
+                return elem.status === "OPEN";
+            });
+            this.setState({
+                rows: orders,
+            });
+        }
+    }
+
+    cancelOrder = async (id) => {
+        let orders = await apiRoutes.cancelOpenOrder({ id });
+        // update table 
+        this.displayOpenOrders(orders);
     }
 
     placeOrder = async () => {
@@ -326,6 +352,7 @@ export class App extends Component {
     }
 
 
+
     submitOrderButton() {
         // if (!this.state.acme.hospital_certificate_received) {
         return (
@@ -348,10 +375,8 @@ export class App extends Component {
         // tab change -> clear the balance and token fields
         if (newValue === 2) {
             console.log("Getting Open Orders...");
-            const orders = await apiRoutes.orders();
-            this.setState({
-                rows: orders.data,
-            });
+            let orders = await apiRoutes.orders();
+            this.displayOpenOrders(orders);
         }
         this.setState(prevState => ({
             deposit: {
@@ -359,7 +384,9 @@ export class App extends Component {
                 totalAmount: "",
                 token: ""
             },
-            value: newValue
+            value: newValue,
+            error: false,
+            collapse_open: false
         }));
     };
 

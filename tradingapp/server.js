@@ -43,7 +43,6 @@ app.post('/api/placeorder', async function (req, res) {
 
 
 app.get('/api/getbalances', cors(), async function (req, res) {
-    console.log("in balance...");
     const balances = storage.getAllBalances();
     res.status(200).send(balances);
 });
@@ -54,9 +53,9 @@ app.get('/api/getorders', cors(), async function (req, res) {
     res.status(200).send(orders);
 });
 
-app.delete('/api/cancelorder', async function (req, res) {
-    storage.cancelOrder(req.body);
-    const orders = storage.getAllOrders();
+app.post('/api/cancelorder', async function (req, res) {
+    console.log("ORDER CANCEL: req.body = ", req.body)
+    const orders = storage.cancelOrder(req.body.id);
     res.status(200).send(orders);
 });
 

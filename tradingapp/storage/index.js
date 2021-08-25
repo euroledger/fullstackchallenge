@@ -38,18 +38,26 @@ const getOrder = (id) => {
 }
 
 exports.cancelOrder = (id) => {
-    console.log("Cancelling order with following data:", data);
+    console.log("Cancelling order with following id:", id)
 
     let orders = getAllOrders();
-    objIndex = orders === undefined ? -1 : balances.findIndex((obj => obj.id === id))
+    if (orders.length > 0) {
+        console.log("type orderid = ", typeof orders[0].orderId);
+        console.log("type id = ", typeof id);
+    }
+  
+    objIndex = orders === undefined ? -1 : orders.findIndex((obj => obj.orderId === parseInt(id)))
 
     if (objIndex === -1) {
         throw new Error("Order not found");
     }
 
     // change cancelled order to status 'CANCELLED'
+    console.log(`Order ${id} cancelled`);
+
     orders[objIndex].status = "CANCELLED";
     cache.set("orders", orders);
+    return orders;
 }
 
 exports.getAllBalances = () => {
@@ -59,12 +67,13 @@ exports.getAllBalances = () => {
 
 const getAllOrders = (openOnly) => {
     let orders = cache.get("orders");
+    console.log(orders);
     if (openOnly) {
         orders = orders.filter((elem) => {
             return elem.status === "OPEN";
         });
     }
-    return !orders ? new Array() : orders
+    return orders;
 }
 
 const getMaxOrderId = (orders) => {
@@ -79,6 +88,9 @@ exports.placeOrder = (data) => {
     console.log("NEW ORDER ID = ", newId);
     // push new order set with key (id + 1)
     data.orderId = newId;
+    if (!orders) {
+        orders = new Array();
+    }
     orders.push(data);
     cache.set("orders", orders);
 

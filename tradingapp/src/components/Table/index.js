@@ -53,11 +53,10 @@ const useStyles = makeStyles({
     },
 });
 
-const handleClick = (id) => {
-    console.log("WOO!")
-}
-export default function CustomizedTables({ rows }) {
 
+export default function CustomizedTables({ rows, handler }) {
+
+    console.log("handler = ", handler);
     const classes = useStyles();
     if (!rows || rows.length === 0) {
         return null;
@@ -77,16 +76,17 @@ export default function CustomizedTables({ rows }) {
                 </TableHead>
                 <TableBody>
                     {rows.map(row => (
-                        <StyledTableRow selected hover key={row.orderId}>
+                        <StyledTableRow selectable hover key={row.orderId}>
                             <StyledTableCell align="left">{row.orderId}</StyledTableCell>
                             <StyledTableCell align="left">{row.token}</StyledTableCell>
                             <StyledTableCell align="left">{row.amount}</StyledTableCell>
                             <StyledTableCell align="left">{row.side}</StyledTableCell>
                             <StyledTableCell align="left">{row.price}</StyledTableCell>
+                            
                             <div style={{ color: 'red', marginTop: '12px', marginLeft: '25px' }}>
 
-                                <IconButton onClick={(e) => { handleClick(e) }}>
-                                    <CancelIcon />
+                                <IconButton>
+                                    <CancelIcon onClick={() => { handler(row.orderId) }}/>
                                 </IconButton>
 
                             </div>

@@ -14,7 +14,7 @@ import Alert from '@material-ui/lab/Alert';
 import IconButton from '@material-ui/core/IconButton';
 
 
-const Form = ({ parent, items, loading, card, title, action, rows, collapse_open }) => {
+const Form = ({ parent, items, card, title, action, rows, collapse_open }) => {
     const useStyles = makeStyles((theme) => ({
         formControl: {
             margin: 0,
@@ -55,10 +55,14 @@ const Form = ({ parent, items, loading, card, title, action, rows, collapse_open
 
     const classes = useStyles();
 
+    const handleClick = async (id) => {
+        await parent.cancelOrder(id);
+    }
+
     const getTable = () => {
         if (action === "vieworders") {
             return (
-                <Table rows={rows}></Table>
+                <Table rows={rows} handler={handleClick}></Table>
             );
         }
     }

@@ -1,5 +1,4 @@
 import axios from 'axios';
-import orderItems from '../components/Fields/order';
 
 const apiRoutes = {
     async deposit(depositData) {
@@ -16,6 +15,7 @@ const apiRoutes = {
     },
 
     async cancelOpenOrder(id) {
+        console.log("QUACK:>>> cancel order, id = ", id);
         return await axios.post('/api/cancelorder', id);
     },
 
