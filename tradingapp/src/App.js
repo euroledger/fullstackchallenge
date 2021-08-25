@@ -21,7 +21,6 @@ axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
 
 const muiTheme = createMuiTheme({
     typography: {
-        // "fontFamily": `"Roboto", "Helvetica", "Arial", sans-serif`,
         "fontFamily": `"Lato","Arial","Helvetica","FreeSans","sans-serif"`,
         "fontSize": 14,
         "fontWeightLight": 300,
@@ -42,32 +41,104 @@ const initState = {
         price: "",
         status: "OPEN"
     },
-    placedOrders: {
-        orders: []
-    },
-    welcome_open: true, // QUACK TEMP FOR TESTING
-
+    placedOrders: [],
+    error: false,
+    balances: [],
+    displayRows: [
+        {
+            orderId: "0",
+            token: "ETH",
+            amount: "1000",
+            side: "BUY",
+            price: "23.6"
+        },
+        {
+            orderId: "1",
+            token: "ETH",
+            amount: "1000",
+            side: "BUY",
+            price: "23.6"
+        },
+        {
+            orderId: "2",
+            token: "ETH",
+            amount: "1000",
+            side: "BUY",
+            price: "23.6"
+        },
+        {
+            orderId: "3",
+            token: "ETH",
+            amount: "1000",
+            side: "BUY",
+            price: "23.6"
+        },
+        {
+            orderId: "4",
+            token: "ETH",
+            amount: "1000",
+            side: "BUY",
+            price: "23.6"
+        },
+        {
+            orderId: "5",
+            token: "ETH",
+            amount: "1000",
+            side: "BUY",
+            price: "23.6"
+        },
+        {
+            orderId: "6",
+            token: "ETH",
+            amount: "1000",
+            side: "BUY",
+            price: "23.6"
+        },
+        {
+            orderId: "7",
+            token: "ETH",
+            amount: "1000",
+            side: "BUY",
+            price: "23.6"
+        },
+        {
+            orderId: "8",
+            token: "ETH",
+            amount: "1000",
+            side: "BUY",
+            price: "23.6"
+        },
+        {
+            orderId: "9",
+            token: "ETH",
+            amount: "1000",
+            side: "BUY",
+            price: "23.6"
+        },
+        {
+            orderId: "10",
+            token: "ETH",
+            amount: "1000",
+            side: "BUY",
+            price: "23.6"
+        },
+        {
+            orderId: "11",
+            token: "ETH",
+            amount: "1000",
+            side: "BUY",
+            price: "23.6"
+        },
+    ],
+    balances_loaded: false,
+    welcome_open: true,
     user_id: "",
     order_id: "",
-
-    connected: false, // QUACK TEMP FOR TESTING
-
-    register: false,
-    register_form_open: false,
-    login: false,
-    // login_form_open: false,
-    firstname: '',
-    lastname: '',
-    email: '',
-    connection_name: sessionStorage.getItem("name"),
-    country: '',
+    connected: false,
     collapse_open: false,
-    login_loading: false,
-    userData: {},
-    value: 0
+    value: 0 // initial tab selection
 };
 export class App extends Component {
-
     constructor(props) {
         super(props);
         this.state = initState;
@@ -75,22 +146,19 @@ export class App extends Component {
 
     setCollapseClosed() {
         this.setState({
-            collapse_open: false
+            collapse_open: false,
         });
     }
 
     onDeposit = async () => {
         const depositDetails = {
-            userId: this.state.user_id,
             amount: this.state.deposit.amount,
             token: this.state.deposit.token
         }
-
-        
         const balances = await apiRoutes.deposit(depositDetails);
 
         console.log(">>> balances = ", balances);
-       
+
         const tokenObj = balances.data.filter((elem) => {
             console.log(">>> depositDetails.token = ", depositDetails.token);
             console.log(">>> elem.token = ", elem.token);
@@ -102,60 +170,60 @@ export class App extends Component {
             deposit: {
                 ...prevState.deposit, totalAmount: tokenObj[0].balance
             },
-            collapse_open: true
-        }));
-    }
-
-    onDeposit = async () => {
-        const depositDetails = {
-            userId: this.state.user_id,
-            amount: this.state.deposit.amount,
-            token: this.state.deposit.token
-        }
-
-        
-        const balances = await apiRoutes.deposit(depositDetails);
-
-        console.log(">>> balances = ", balances);
-       
-        const tokenObj = balances.data.filter((elem) => {
-            console.log(">>> depositDetails.token = ", depositDetails.token);
-            console.log(">>> elem.token = ", elem.token);
-            return elem.token === depositDetails.token;
-        });
-
-        console.log("Setting total amount to ", tokenObj[0])
-        this.setState(prevState => ({
-            deposit: {
-                ...prevState.deposit, totalAmount: tokenObj[0].balance
-            },
+            balances: balances.data,
             collapse_open: true
         }));
     }
 
     placeOrder = async () => {
+
+        const objIndex = this.state.balances.findIndex((obj => obj.token === this.state.order.token));
+
+        // ensure sufficient funds for this order
+        if (parseInt(this.state.order.amount) > this.state.balances[objIndex].balance) {
+            this.setState({
+                collapse_open: true, // displays alert
+                error: true
+            });
+            return;
+        }
         const orderDetails = {
             amount: this.state.order.amount,
             token: this.state.order.token,
             side: this.state.order.buysell,
-            price: this.state.order.price
+            price: this.state.order.price,
+            status: this.state.order.status
         }
 
         const orders = await apiRoutes.placeOrder(orderDetails);
 
-        console.log(">>> orders = ", orders);
-       
+        // adjust available balance for this token
+
+        // get new balance from server
+        await this.getBalancesFromServer();
+
+        this.setState(prevState => ({
+            deposit: {
+                ...prevState.deposit,
+                totalAmount: this.state.balances[objIndex].balance
+            },
+        }));
+
+
         this.setState(prevState => ({
             placedOrders: {
                 ...prevState.placedOrders, orders
             },
-            collapse_open: true
+            collapse_open: true // displays success alert
         }));
     }
 
     setDepositFieldValue = (event) => {
         const { target: { name, value } } = event;
 
+        if (event.target.name === "token") {
+            this.updateAvailableBalance(value);
+        }
         this.setState(prevState => ({
             deposit: {
                 ...prevState.deposit, [name]: value
@@ -163,11 +231,37 @@ export class App extends Component {
         }));
     }
 
+    updateAvailableBalance = (value) => {
+        // token has changed -> reload the available balance
+
+        // find the balance in the balances array for the correct token
+        const objIndex = this.state.balances.length === 0 ? -1 : this.state.balances.findIndex((obj => obj.token === value))
+        if (objIndex >= 0) {
+            this.setState(prevState => ({
+                deposit: {
+                    ...prevState.deposit,
+                    totalAmount: this.state.balances[objIndex].balance,
+                    token: value
+                }
+            }));
+        } else {
+            this.setState(prevState => ({
+                deposit: {
+                    ...prevState.deposit,
+                    totalAmount: 0,
+                    token: value
+                }
+            }));
+        }
+    }
     setOrderFieldValue = (event) => {
         const { target: { name, value } } = event;
 
+        if (event.target.name === "token") {
+            this.updateAvailableBalance(value);
+        }
         this.setState(prevState => ({
-            deposit: {
+            order: {
                 ...prevState.order, [name]: value
             }
         }));
@@ -201,7 +295,7 @@ export class App extends Component {
         if (!user) {
             user = await Moralis.Web3.authenticate();
 
-            // TODO check authenticate succeeded here
+            // TODO if operation fails, throw error
         }
 
         if (user) {
@@ -249,7 +343,7 @@ export class App extends Component {
         return (
             <div style={{ marginTop: '10px', marginBottom: '20px' }}>
                 <Button className="registerbutton"
-                    onClick={() => this.submitOrder()} >
+                    onClick={() => this.placeOrder()} >
                     {this.submitOrderLabel()}
                 </Button>
             </div>
@@ -263,8 +357,32 @@ export class App extends Component {
     }
 
     handleChange = (event, newValue) => {
-        this.setState({ value: newValue });
+        // tab change -> clear the balance and token fields
+        this.setState(prevState => ({
+            deposit: {
+                ...prevState.deposit,
+                totalAmount: "",
+                token: ""
+            },
+            value: newValue
+        }));
     };
+
+    async getBalancesFromServer() {
+        let balances = await apiRoutes.balances();
+        console.log(">>>>> Balances = ", balances.data)
+        this.setState({
+            balances: balances.data,
+            balances_loaded: true
+        });
+    }
+
+    // get all balances once on initial load
+    async componentDidMount() {
+        if (!this.state.balances_loaded) {
+            await this.getBalancesFromServer();
+        }
+    }
 
     render() {
         let web = sessionStorage.getItem("waitingForacmeUserData");
@@ -310,7 +428,7 @@ export class App extends Component {
                                 <p>Welcome to DeversiFi Trading App Demo</p>
                             </div>
                             <div style={{ marginTop: '35px' }}>
-                                <p> Click on Authenticate to connect to your metamask wallet.
+                                <p> Click on 'Connect to Wallet' to connect to your metamask wallet.
 
                                 </p>
                             </div>
@@ -346,11 +464,19 @@ export class App extends Component {
                                     card={this.state}
                                     title={"Submit Order"}
                                     action={"placeorder"}
-                                    collapse_open={false}>
+                                    collapse_open={this.state.collapse_open}>
                                 </Form>
                             </TabPanel>
                             <TabPanel value={this.state.value} index={2}>
-
+                                <Form
+                                    parent={this}
+                                    items={undefined}
+                                    loading={false}
+                                    card={this.state}
+                                    title={"Open Orders"}
+                                    action={"vieworders"}
+                                    rows={this.state.displayRows}>
+                                </Form>
                             </TabPanel>
                         </div>
                     </Paper>

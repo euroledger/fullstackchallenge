@@ -41,11 +41,24 @@ app.post('/api/placeorder', async function (req, res) {
 });
 
 
-app.get('/api/balances', cors(), async function (req, res) {
+app.get('/api/getbalances', cors(), async function (req, res) {
     console.log("in balance...");
     const balances = storage.getAllBalances();
     res.status(200).send(balances);
 });
+
+app.get('/api/getorders', cors(), async function (req, res) {
+    console.log("in getorders...");
+    const orders = storage.getAllOrders();
+    res.status(200).send(orders);
+});
+
+app.delete('/api/cancelorder', async function (req, res) {
+    storage.cancelOrder(req.body);
+    const orders = storage.getAllOrders();
+    res.status(200).send(orders);
+});
+
 
 // for graceful closing
 var server = http.createServer(app);

@@ -1,61 +1,90 @@
 const NodeCache = require("node-cache");
 const cache = new NodeCache();
 
-exports.updateBalance = (data) => {
-    console.log("Updating balance for", data.token);
+const setInitialBalancesCollection = (data) => {
+    // no balance for this token; add it to the (new) collection
+    const balanceObj = { token: data.token, balance: data.amount };
+    balances = new Array(balanceObj);
+    console.log("--> setting balances to ", balances);
+    cache.set("balances", balances);
+}
+
+const updateBalancesCollection = (balances, data, index) => {    
+    balances[index] = { token: data.token, balance: parseInt(balances[index].balance) + parseInt(data.amount)};
+
+    console.log("--> setting balances to ", balances);
+    cache.set("balances", balances);
+}
+exports.updateBalance = (update) => {
+    console.log("Updating balance for", update.token);
+    console.log("Amount to adjust = ", update.amount);
 
     let balances = this.getAllBalances();
-
-    objIndex = balances === undefined ? -1 : balances.findIndex((obj => obj.token === data.token)) 
-
-    console.log("objIndex =", objIndex);
-
+    const objIndex = balances === undefined ? -1 : balances.findIndex((obj => obj.token === update.token))
     if (objIndex === -1) {
-        // no balance for this token; add it to the collection
-        const balanceObj = { token: data.token, balance: data.amount };
-        balances = new Array(balanceObj);
-        console.log("--> setting balances to ", balances);
-        cache.set("balances", balances);
+        setInitialBalancesCollection(update);
     } else {
-        // already a balance for this token; update the amount and replace 
-        // the balance object
-        const balanceForToken = balances.filter((elem) => {
-            return elem.token === data.token;
-        });
-
-        console.log("balanceForToken = ", balanceForToken);
-        let beforeBalance = parseInt(balanceForToken[0].balance);
-        console.log("-->old balance = ", beforeBalance);
-        let newBalance = beforeBalance + parseInt(data.amount);
-        console.log("-->new balance= ", newBalance);
-        const balanceObj = { token: data.token, balance: newBalance };
-        balances[objIndex] = balanceObj;
-
-        console.log("--> setting balances to ", balances);
-        cache.set("balances", balances);
+        updateBalancesCollection(balances, update, objIndex);
     }
-
     return balances;
 };
 
-exports.getAllBalances = () => {
-    console.log("get all balances");
-    return cache.get("balances");
-};
+const getOrder = (id) => {
+    const orders = getAllOrders();
+    const orderToCancel = orders.filter((elem) => {
+        return elem.id === data.id;
+    });
+    return orderToCancel;
+}
 
-exports.placeOrder = (data) => {
-    console.log("Placing order with following data:" , data);
+exports.cancelOrder = (id) => {
+    console.log("Cancelling order with following data:", data);
 
-    // get all orders from cache
-    const orders = cache.get("orders");
+    let orders = getAllOrders();
+    objIndex = orders === undefined ? -1 : balances.findIndex((obj => obj.id === id))
 
-    // get the highest order number (id) from the returned data set
-    const newId = orders.length ? 0 : Math.max.apply(Math, orders.map(function(o) { return o.y; }))
+    if (objIndex === -1) {
+        throw new Error("Order not found");
+    }
 
-    console.log("NEW ORDER ID = ", id);
-    
-    // push new order set with key (id + 1)
-    orders.push(data);
-
+    // change cancelled order to status 'CANCELLED'
+    orders[objIndex].status = "CANCELLED";
     cache.set("orders", orders);
 }
+
+exports.getAllBalances = () => {
+    let balances = cache.get("balances");
+    return !balances ? new Array() : balances
+};
+
+const getAllOrders = () => {
+    let orders = cache.get("orders");
+    return !orders ? new Array() : orders
+}
+
+const getMaxOrderId = (orders) => {
+    return orders === undefined ? 1 : orders.length === 0 ? 0 :  
+        parseInt(orders.reduce((p, c) => p.orderId > c.orderId ? p : c).orderId) + 1;
+}
+
+exports.placeOrder = (data) => {
+    console.log("Placing order with following data:", data);
+    let orders = getAllOrders();
+    const newId = getMaxOrderId(orders);
+    console.log("NEW ORDER ID = ", newId);
+    // push new order set with key (id + 1)
+    data.orderId = newId;
+    orders.push(data);
+    cache.set("orders", orders);
+
+    // update balance: deduct the amount of the order for this token
+    this.updateBalance({
+        amount: 0-parseInt(data.amount),
+        token: data.token
+    })
+}
+
+exports.getAllOrders = () => {
+    console.log("get all orders");
+    return cache.get("orders");
+};

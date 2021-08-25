@@ -4,17 +4,25 @@ import AppBar from '@material-ui/core/AppBar';
 import Typography from "@material-ui/core/es/Typography/Typography";
 import Button from '@material-ui/core/Button';
 
+
+const getButtonLabel = (state) => {
+    if (state.connected) {
+        return "Sign Out";
+    } else {
+        return "Connect to Wallet";
+    }
+}
 const NavBar = ({ parent }) => {
     return (
         <AppBar position="static">
-            <Toolbar style={{ backgroundColor: '#336699' }}>
+            <Toolbar style={{ backgroundColor: '#0c091f' }}>
                 <img style={{ maxHeight: '40px', paddingRight: '30px' }} src="deversifi2.png" alt="logo" />
                 <Typography variant="h6">
                     DeversiFi Full Stack Demo
                 </Typography>
                 <div style={{ flexGrow: 1 }}></div>
                 <Button style={{ color: 'white' }} onClick={() => parent.connectWallet()}>
-                    Connect to Wallet
+                    {getButtonLabel(parent.state)}
                 </Button>
             </Toolbar>
         </AppBar>
