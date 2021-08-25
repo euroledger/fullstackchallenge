@@ -20,6 +20,11 @@ See function
 To sign in, you must have multimask installed in the browser. Then click on "Connect to Wallet" and when asked by the Metamask notification, click on "Sign".
 
 You stay signed in unless you click on "Sign Out".
+# REST API
+
+The app allows users to add to their balance for various tokens, to place orders with those tokens and to view open orders.
+
+As yet, the ability to cancel orders is still in progress (see View Open Orders screen).
 
 # Improvements
 
