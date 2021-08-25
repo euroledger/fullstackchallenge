@@ -24,7 +24,7 @@ You stay signed in unless you click on "Sign Out".
 
 The app allows users to add to their balance for various tokens, to place orders with those tokens and to view open orders.
 
-As yet, the ability to cancel orders is still in progress (see View Open Orders screen).
+Orders can be cancelled by clicking on the cancel icon in the view open orders screen.
 
 # Improvements
 
